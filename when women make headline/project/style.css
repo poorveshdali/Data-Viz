@@ -48,6 +48,8 @@ body{
 .line:focus{outline:none}
 .line.active{background:var(--accent-color); height:1.6px}
 
+.viz-svg{width:100%; height:auto; display:block;}
+
 /* highlighted annotation line */
 .highlight-line{
   position:fixed;
