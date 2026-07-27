@@ -146,16 +146,38 @@ function renderBackground(data){
     document.querySelectorAll(`.line[data-index='${i}']`).forEach(n => n.classList.add('active'));
 
     const wordObj = data[i];
+    // determine which column the mouse is over to show 'Country'
+    let colLabel = 'ALL COUNTRIES';
+    const colEl = event.target.closest('.column');
+    if(colEl){
+      const cols = Array.from(document.querySelectorAll('.column'));
+      const idx = cols.indexOf(colEl);
+      const labels = ['ALL COUNTRIES','INDIA','SOUTH AFRICA','UK','USA'];
+      colLabel = labels[idx] || colLabel;
+    }
+
     let html = `<div><strong>Word:</strong> ${wordObj.word}</div>`;
+    html += `<div><strong>Country:</strong> ${colLabel}</div>`;
     html += `<div><strong>Rank (all):</strong> ${i+1}</div>`;
     html += `<div><strong>Frequency (all):</strong> ${wordObj.freq_all}</div>`;
-    // show per-country ranks and freqs
+
+    // show the specific country's rank/freq first
+    const countryKeys = ['all','india','south_africa','uk','usa'];
+    const labels = ['ALL COUNTRIES','INDIA','SOUTH AFRICA','UK','USA'];
+    const cols = Array.from(document.querySelectorAll('.column'));
+    const idx = cols.indexOf(colEl);
+    const focusKey = countryKeys[idx >= 0 ? idx : 0];
+    if(focusKey && focusKey !== 'all'){
+      const r = wordObj.ranks[focusKey];
+      const f = wordObj.freqs[focusKey] || 0;
+      if(r){ html += `<div><strong>${labels[idx]}:</strong> rank ${r} — ${f}</div>`; }
+    }
+
+    // then list other countries
     ['india','south_africa','uk','usa'].forEach(k => {
       const r = wordObj.ranks[k];
       const f = wordObj.freqs[k] || 0;
-      if(r){
-        html += `<div><strong>${k.replace('_',' ')}:</strong> rank ${r} — ${f}</div>`;
-      }
+      if(r){ html += `<div><strong>${k.replace(/_/g,' ')}:</strong> rank ${r} — ${f}</div>`; }
     });
 
     tooltip.innerHTML = html;
@@ -270,27 +292,49 @@ function loadCSV(){
     console.log('First five rows:', rawData.slice(0,5));
     headers = rawData.columns || Object.keys(rawData[0] || {});
 
-    const uniqueWords = new Set();
-    const uniqueData = [];
-    for(const row of rawData){
-      const word = row.headline_no_site ? String(row.headline_no_site).trim() : '';
-      if(!word) continue;
-      const lower = word.toLowerCase();
-      if(uniqueWords.has(lower)) continue;
-      uniqueWords.add(lower);
-      uniqueData.push(row);
-      if(uniqueData.length === EXPECTED_ROWS) break;
-    }
+    // detect country column
+    const countryCol = findHeaderFor(['country']);
 
-    dataset = uniqueData;
-    console.log('Unique valid rows (first up to 1231 unique headline_no_site):', dataset.length);
+    // compute frequencies
+    const { allCounts, countryCounts } = computeWordFrequency(rawData, countryCol);
+    const allRankData = computeRanksFromCounts(allCounts);
+    const indiaRankData = computeRanksFromCounts(countryCounts.india);
+    const saRankData = computeRanksFromCounts(countryCounts.south_africa);
+    const ukRankData = computeRanksFromCounts(countryCounts.uk);
+    const usaRankData = computeRanksFromCounts(countryCounts.usa);
+
+    // build top words list from allCounts
+    const top = allRankData.entries.slice(0, EXPECTED_ROWS);
+    const topWords = top.map((e, idx) => {
+      const w = e.word;
+      return {
+        word: w,
+        freq_all: e.count,
+        freqs: {
+          india: countryCounts.india[w] || 0,
+          south_africa: countryCounts.south_africa[w] || 0,
+          uk: countryCounts.uk[w] || 0,
+          usa: countryCounts.usa[w] || 0
+        },
+        ranks: {
+          all: allRankData.ranks[w] || null,
+          india: indiaRankData.ranks[w] || null,
+          south_africa: saRankData.ranks[w] || null,
+          uk: ukRankData.ranks[w] || null,
+          usa: usaRankData.ranks[w] || null
+        }
+      };
+    });
+
+    dataset = topWords;
+    console.log('Computed top words:', dataset.length);
 
     if(dataset.length === EXPECTED_ROWS){
       clearError();
     } else if(dataset.length > 0){
-      showError(`Warning: found ${dataset.length} unique headline_no_site words (expected ${EXPECTED_ROWS}). Visualization will render ${dataset.length} rows.`);
+      showError(`Warning: found ${dataset.length} unique words (expected ${EXPECTED_ROWS}). Visualization will render ${dataset.length} rows.`);
     } else {
-      showError('Warning: no valid headline_no_site values found in the CSV.');
+      showError('Warning: no valid words found after processing the CSV.');
     }
 
     renderBackground(dataset);
