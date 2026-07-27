@@ -64,16 +64,17 @@ function renderVisualization(rawData) {
   clearError();
 
   const columnCount = rows.length;
-  const margin = { top: 120, right: 42, bottom: 42, left: 180 };
-  const columnWidth = 180;
-  const rowHeight = Math.max(2.5, 960 / Math.max(keywordCount, 120));
-  const width = margin.left + columnCount * columnWidth + margin.right;
-  const height = margin.top + keywordCount * rowHeight + margin.bottom;
+  const margin = { top: 120, right: 60, bottom: 42, left: 180 };
+  const columnWidth = 220;
+  const columnGap = 48;
+  const columnHeight = Math.max(960, (maxRank || 1) * 8);
+  const width = margin.left + columnCount * columnWidth + (columnCount - 1) * columnGap + margin.right;
+  const height = margin.top + columnHeight + margin.bottom;
 
-  const rankDomainMax = Math.max(keywordCount, maxRank || keywordCount);
+  const rankDomainMax = Math.max(1, maxRank || 1);
   const yScale = d3.scaleLinear()
     .domain([1, rankDomainMax])
-    .range([margin.top, margin.top + (rankDomainMax - 1) * rowHeight]);
+    .range([margin.top, margin.top + columnHeight]);
 
   const svg = container.append('svg')
     .attr('viewBox', `0 0 ${width} ${height}`)
@@ -127,7 +128,7 @@ function renderVisualization(rawData) {
     .data(rows)
     .join('g')
       .attr('class', 'column-group')
-      .attr('transform', (row, colIndex) => `translate(${margin.left + colIndex * columnWidth},0)`);
+      .attr('transform', (row, colIndex) => `translate(${margin.left + colIndex * (columnWidth + columnGap)},0)`);
 
   columnGroups.append('text')
     .attr('x', columnWidth / 2)
@@ -151,8 +152,8 @@ function renderVisualization(rawData) {
       .data(ticksData)
       .join('line')
         .attr('class', 'tick')
-        .attr('x1', columnWidth / 2 - 14)
-        .attr('x2', columnWidth / 2 + 14)
+        .attr('x1', 16)
+        .attr('x2', columnWidth - 16)
         .attr('y1', d => yScale(d.rank))
         .attr('y2', d => yScale(d.rank))
         .attr('stroke', '#E0D5B8')
