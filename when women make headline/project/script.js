@@ -55,27 +55,25 @@ function renderVisualization(rawData) {
 
   parsedData = parseCSVData(rawData);
   const { keywords, rows, maxRank } = parsedData;
+  const keywordCount = keywords.length;
 
-  if (keywords.length === 0) {
-    showError('No keyword columns found in CSV.');
+  if (rows.length === 0 || keywordCount === 0) {
+    showError('No keyword columns or country rows found in the CSV.');
     return;
   }
   clearError();
 
-  const width = Math.max(1200, keywords.length * 10);
-  const rowGap = 120;
-  const trackHeight = 72;
-  const margin = { top: 140, right: 120, bottom: 40, left: 140 };
-  const height = margin.top + rows.length * rowGap + margin.bottom;
+  const columnCount = rows.length;
+  const margin = { top: 120, right: 42, bottom: 42, left: 180 };
+  const columnWidth = 180;
+  const rowHeight = Math.max(2.5, 960 / Math.max(keywordCount, 120));
+  const width = margin.left + columnCount * columnWidth + margin.right;
+  const height = margin.top + keywordCount * rowHeight + margin.bottom;
 
-  const x = d3.scalePoint()
-    .domain(keywords)
-    .range([margin.left, width - margin.right])
-    .padding(0.5);
-
-  const rankScale = d3.scaleLinear()
-    .domain([1, maxRank])
-    .range([0, trackHeight]);
+  const rankDomainMax = Math.max(keywordCount, maxRank || keywordCount);
+  const yScale = d3.scaleLinear()
+    .domain([1, rankDomainMax])
+    .range([margin.top, margin.top + (rankDomainMax - 1) * rowHeight]);
 
   const svg = container.append('svg')
     .attr('viewBox', `0 0 ${width} ${height}`)
@@ -86,7 +84,7 @@ function renderVisualization(rawData) {
 
   svg.append('text')
     .attr('x', margin.left)
-    .attr('y', 40)
+    .attr('y', 36)
     .attr('font-family', 'Georgia, serif')
     .attr('font-size', 22)
     .attr('fill', '#222')
@@ -94,91 +92,100 @@ function renderVisualization(rawData) {
 
   svg.append('text')
     .attr('x', margin.left)
-    .attr('y', 64)
+    .attr('y', 62)
     .attr('font-family', 'Inter, sans-serif')
     .attr('font-size', 12)
     .attr('fill', '#5d5d5d')
-    .text('Each country row plots a keyword rank from the CSV matrix. Hover to see the specific keyword rank.');
+    .text('Each column shows the rank distribution for keywords in that country.');
 
-  const axisY = margin.top - 28;
+  svg.append('text')
+    .attr('x', margin.left)
+    .attr('y', margin.top - 34)
+    .attr('font-family', 'Inter, sans-serif')
+    .attr('font-size', 11)
+    .attr('fill', '#666')
+    .text('WORD OCCURS MORE OFTEN →');
 
-  svg.append('line')
-    .attr('x1', margin.left)
-    .attr('x2', width - margin.right)
-    .attr('y1', axisY)
-    .attr('y2', axisY)
-    .attr('stroke', '#333')
-    .attr('stroke-width', 1.5);
-
-  const labelStep = Math.max(1, Math.floor(keywords.length / 26));
-  const xLabels = keywords.filter((d, i) => i % labelStep === 0 || i === keywords.length - 1);
-
-  svg.append('g')
-    .selectAll('text')
-    .data(xLabels)
-    .join('text')
-      .attr('x', d => x(d))
-      .attr('y', axisY - 12)
-      .attr('text-anchor', 'middle')
-      .attr('font-family', 'Inter, sans-serif')
-      .attr('font-size', 9)
-      .attr('fill', '#303030')
-      .attr('transform', d => `translate(0,0)`)
-      .text(d => d);
+  const grid = svg.append('g').attr('class', 'rank-grid');
+  const ticks = d3.range(1, rankDomainMax + 1);
+  grid.selectAll('line')
+    .data(ticks)
+    .join('line')
+      .attr('x1', margin.left)
+      .attr('x2', width - margin.right)
+      .attr('y1', d => yScale(d))
+      .attr('y2', d => yScale(d))
+      .attr('stroke', '#e1d8cc')
+      .attr('stroke-width', 1)
+      .attr('stroke-opacity', 0.18);
 
   const tooltip = d3.select('#tooltip');
 
-  const lineGenerator = d3.line()
-    .defined(d => d.rank !== null)
-    .x(d => x(d.keyword))
-    .y(d => d.trackY + rankScale(d.rank));
+  const columnGroups = svg.append('g')
+    .selectAll('g.column-group')
+    .data(rows)
+    .join('g')
+      .attr('class', 'column-group')
+      .attr('transform', (row, colIndex) => `translate(${margin.left + colIndex * columnWidth},0)`);
 
-  rows.forEach((row, rowIndex) => {
-    const trackY = margin.top + rowIndex * rowGap;
-    const rowGroup = svg.append('g').attr('class', 'country-row');
+  columnGroups.append('line')
+    .attr('x1', columnWidth / 2)
+    .attr('x2', columnWidth / 2)
+    .attr('y1', margin.top)
+    .attr('y2', margin.top + (rankDomainMax - 1) * rowHeight)
+    .attr('stroke', '#c8b9a6')
+    .attr('stroke-width', 1.5);
 
-    rowGroup.append('line')
-      .attr('x1', margin.left)
-      .attr('x2', width - margin.right)
-      .attr('y1', trackY)
-      .attr('y2', trackY)
-      .attr('stroke', '#ddd')
-      .attr('stroke-width', 1);
+  columnGroups.append('text')
+    .attr('x', columnWidth / 2)
+    .attr('y', margin.top - 20)
+    .attr('text-anchor', 'middle')
+    .attr('font-family', 'Inter, sans-serif')
+    .attr('font-size', 12)
+    .attr('fill', '#222')
+    .attr('font-weight', 700)
+    .text(d => d.country || '');
 
-    rowGroup.append('text')
-      .attr('x', margin.left - 16)
-      .attr('y', trackY + 4)
-      .attr('text-anchor', 'end')
-      .attr('font-family', 'Inter, sans-serif')
-      .attr('font-size', 13)
-      .attr('fill', '#222')
-      .text(row.country || `row ${rowIndex + 1}`);
-
-    const rowPoints = keywords.map((keyword, keywordIndex) => ({
+  columnGroups.each(function(row) {
+    const column = d3.select(this);
+    const ticksData = keywords.map((keyword, keywordIndex) => ({
       keyword,
       rank: row.ranks[keywordIndex],
-      trackY
-    }));
+      country: row.country
+    })).filter(d => d.rank !== null);
 
-    rowGroup.append('path')
-      .datum(rowPoints)
-      .attr('d', lineGenerator)
-      .attr('fill', 'none')
-      .attr('stroke', '#666')
-      .attr('stroke-width', 1)
-      .attr('stroke-opacity', 0.25);
+    column.selectAll('line.tick')
+      .data(ticksData)
+      .join('line')
+        .attr('class', 'tick')
+        .attr('x1', columnWidth / 2 - 14)
+        .attr('x2', columnWidth / 2 + 14)
+        .attr('y1', d => yScale(d.rank))
+        .attr('y2', d => yScale(d.rank))
+        .attr('stroke', '#2b2b2b')
+        .attr('stroke-width', 1)
+        .attr('stroke-opacity', 0.45)
+        .attr('cursor', 'pointer')
+        .on('mouseenter', (event, d) => {
+          tooltip.html(`<div><strong>Keyword:</strong> ${d.keyword}</div><div><strong>Country:</strong> ${d.country}</div><div><strong>Rank:</strong> ${d.rank}</div>`);
+          tooltip.style('display', 'block');
+          positionTooltip(event);
+        })
+        .on('mousemove', (event) => positionTooltip(event))
+        .on('mouseleave', () => tooltip.style('display', 'none'));
 
-    rowGroup.selectAll('circle')
-      .data(rowPoints.filter(d => d.rank !== null))
+    column.selectAll('circle.hit')
+      .data(ticksData)
       .join('circle')
-        .attr('cx', d => x(d.keyword))
-        .attr('cy', d => d.trackY + rankScale(d.rank))
-        .attr('r', 2.2)
-        .attr('fill', '#111')
+        .attr('class', 'hit')
+        .attr('cx', columnWidth / 2)
+        .attr('cy', d => yScale(d.rank))
+        .attr('r', 3)
+        .attr('fill', '#2b2b2b')
         .attr('fill-opacity', 0.8)
         .attr('cursor', 'pointer')
         .on('mouseenter', (event, d) => {
-          tooltip.html(`<div><strong>Keyword:</strong> ${d.keyword}</div><div><strong>Country:</strong> ${row.country}</div><div><strong>Rank:</strong> ${d.rank}</div>`);
+          tooltip.html(`<div><strong>Keyword:</strong> ${d.keyword}</div><div><strong>Country:</strong> ${d.country}</div><div><strong>Rank:</strong> ${d.rank}</div>`);
           tooltip.style('display', 'block');
           positionTooltip(event);
         })
@@ -223,48 +230,38 @@ function highlightWord(keyword) {
     return;
   }
 
-  const x = d3.scalePoint()
-    .domain(parsedData.keywords)
-    .range([140, Math.max(1200, parsedData.keywords.length * 10) - 120])
-    .padding(0.5);
+  const columnWidth = 180;
+  const marginLeft = 180;
+  const rankDomainMax = Math.max(parsedData.keywords.length, parsedData.maxRank || parsedData.keywords.length);
+  const rowHeight = Math.max(2.5, 960 / Math.max(parsedData.keywords.length, 120));
+  const yScale = d3.scaleLinear()
+    .domain([1, rankDomainMax])
+    .range([140, 140 + (rankDomainMax - 1) * rowHeight]);
 
-  const maxRank = parsedData.maxRank;
-  const rankScale = d3.scaleLinear()
-    .domain([1, maxRank])
-    .range([0, 72]);
-
-  const xValue = x(parsedData.keywords[keywordIndex]);
-
-  currentSvg.append('line')
-    .attr('class', 'highlight')
-    .attr('x1', xValue)
-    .attr('x2', xValue)
-    .attr('y1', 140)
-    .attr('y2', 140 + parsedData.rows.length * 120)
-    .attr('stroke', '#d95f5f')
-    .attr('stroke-width', 1.5)
-    .attr('stroke-opacity', 0.9);
-
-  parsedData.rows.forEach((row, rowIndex) => {
+  parsedData.rows.forEach((row, colIndex) => {
     const rank = row.ranks[keywordIndex];
     if (rank === null) return;
-    const trackY = 140 + rowIndex * 120;
+    const xValue = marginLeft + colIndex * columnWidth + columnWidth / 2;
+    const yValue = yScale(rank);
+
     currentSvg.append('circle')
       .attr('class', 'highlight')
       .attr('cx', xValue)
-      .attr('cy', trackY + rankScale(rank))
-      .attr('r', 4)
-      .attr('fill', '#d95f5f');
+      .attr('cy', yValue)
+      .attr('r', 5)
+      .attr('fill', '#d95f5f')
+      .attr('fill-opacity', 0.95);
   });
 
+  const labelX = marginLeft + parsedData.rows.length * columnWidth + 12;
   currentSvg.append('text')
     .attr('class', 'highlight')
-    .attr('x', xValue + 10)
-    .attr('y', 130)
+    .attr('x', labelX)
+    .attr('y', 60)
     .attr('font-family', 'Inter, sans-serif')
-    .attr('font-size', 12)
+    .attr('font-size', 13)
     .attr('fill', '#d95f5f')
-    .attr('font-weight', '700')
+    .attr('font-weight', 700)
     .text(parsedData.keywords[keywordIndex]);
 }
 
