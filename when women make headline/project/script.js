@@ -1,6 +1,11 @@
-// script.js (updated to use d3.csv with detailed debugging)
+// script.js (updated with annotation API and refactored loader)
 const CSV_PATH = 'data.csv';
 const EXPECTED_ROWS = 1231;
+
+let dataset = [];      // rows used for visualization (unique headline_no_site)
+let headers = [];
+let highlightEls = [];
+let labelEl = null;
 
 function createColumns(root, count){
   const cols = [];
@@ -28,7 +33,17 @@ function clearError(){
   warning.textContent = '';
 }
 
-function renderVisualization(data){
+function findHeaderFor(countryKeywords){
+  const normalized = headers.map(h => (h||'').toString().toLowerCase().replace(/\s+/g,'').replace(/[^a-z0-9_]/g,''));
+  for(const kw of countryKeywords){
+    for(let i=0;i<normalized.length;i++){
+      if(normalized[i].includes(kw)) return headers[i];
+    }
+  }
+  return null;
+}
+
+function renderBackground(data){
   const columnsRoot = document.getElementById('columns');
   const tooltip = document.getElementById('tooltip');
   columnsRoot.innerHTML = '';
@@ -40,7 +55,7 @@ function renderVisualization(data){
   console.log('Rendering rows:', rowCount);
 
   // determine container height and spacing
-  const containerHeight = Math.max(1200, rowCount * 2); // px; keeps dense look
+  const containerHeight = Math.max(1200, rowCount * 2); // px
   document.querySelectorAll('.column').forEach(c => c.style.height = containerHeight + 'px');
   const spacing = containerHeight / Math.max(1, rowCount);
 
@@ -82,7 +97,6 @@ function renderVisualization(data){
     let html = `<div><strong>Rank:</strong> ${i+1}</div>`;
     html += `<div><strong>Word:</strong> ${row.headline_no_site || ''}</div>`;
 
-    // show remaining available columns
     Object.keys(row).forEach(k => {
       if(k === 'headline_no_site') return;
       const val = row[k];
@@ -116,16 +130,90 @@ function renderVisualization(data){
   }
 }
 
-function init(){
-  const columnsRoot = document.getElementById('columns');
-  const tooltip = document.getElementById('tooltip');
-  const warning = document.getElementById('warning');
+function clearHighlight(){
+  highlightEls.forEach(el => el.remove());
+  highlightEls = [];
+  if(labelEl){ labelEl.remove(); labelEl = null; }
+}
 
+function highlightWord(word){
+  clearHighlight();
+  if(!word){ showError('No word provided to highlight'); return; }
+  const target = String(word).trim().toLowerCase();
+
+  const rowIndex = dataset.findIndex(r => (r.headline_no_site||'').toString().trim().toLowerCase() === target);
+  if(rowIndex === -1){ showError('Word not found in dataset.'); return; }
   clearError();
 
+  const columnsRoot = document.getElementById('columns');
+  const colElems = Array.from(columnsRoot.querySelectorAll('.column'));
+  const totalRows = dataset.length;
+  const chartHeight = colElems[0] ? colElems[0].clientHeight : Math.max(1200, totalRows * 2);
+
+  const allHeader = findHeaderFor(['rankall','rank_all','allcountries','all']);
+  const indiaHeader = findHeaderFor(['india','rankindia','rank_india']);
+  const saHeader = findHeaderFor(['southafrica','south_africa','south','ranksouth']);
+  const ukHeader = findHeaderFor(['uk','britain','unitedkingdom','rankuk','rank_uk']);
+  const usaHeader = findHeaderFor(['usa','us','unitedstates','rankusa','rank_usa']);
+
+  const countryHeaders = [allHeader, indiaHeader, saHeader, ukHeader, usaHeader];
+
+  const ranks = countryHeaders.map(h => {
+    if(!h) return null;
+    const val = dataset[rowIndex][h];
+    const n = parseInt(String(val||'').replace(/[^0-9]/g,''), 10);
+    return isNaN(n) ? null : n;
+  });
+
+  for(let i=0;i<ranks.length;i++){
+    if(ranks[i] == null) ranks[i] = rowIndex + 1;
+  }
+
+  ranks.forEach((rank, colIdx) => {
+    const col = colElems[colIdx];
+    if(!col) return;
+    const rect = col.getBoundingClientRect();
+    const y = ((rank - 1) / totalRows) * chartHeight;
+    const top = rect.top + y;
+    const hl = document.createElement('div');
+    hl.className = 'highlight-line';
+    hl.style.top = top + 'px';
+    hl.style.left = rect.left + 'px';
+    hl.style.width = rect.width + 'px';
+    hl.style.opacity = '0';
+    document.body.appendChild(hl);
+    highlightEls.push(hl);
+    requestAnimationFrame(()=>{
+      hl.style.opacity = '1';
+    });
+  });
+
+  const usaCol = colElems[4];
+  if(usaCol){
+    const usaRect = usaCol.getBoundingClientRect();
+    const usaY = ((ranks[4] - 1) / totalRows) * chartHeight;
+    const lbl = document.createElement('div');
+    lbl.className = 'annotation-label';
+    lbl.textContent = String(word).toUpperCase();
+    document.body.appendChild(lbl);
+    labelEl = lbl;
+    const left = usaRect.right + 12;
+    const top = usaRect.top + usaY;
+    lbl.style.position = 'fixed';
+    lbl.style.left = left + 'px';
+    lbl.style.top = top + 'px';
+    lbl.style.opacity = '0';
+    requestAnimationFrame(()=> lbl.style.opacity = '1');
+  }
+}
+
+function showAnnotation(word){
+  highlightWord(word);
+}
+
+function loadCSV(){
   console.log('Page URL:', window.location.href);
   console.log('CSV loading path:', CSV_PATH);
-
   if(window.location.protocol === 'file:'){
     const msg = 'CSV loading may be blocked because this page is opened directly from the filesystem. Please run the project using a local development server such as VS Code Live Server.';
     showError(msg);
@@ -143,23 +231,32 @@ function init(){
     console.log('Raw rows loaded (data.length):', rawData.length);
     console.log('CSV columns (data.columns):', rawData.columns || []);
     console.log('First five rows:', rawData.slice(0,5));
+    headers = rawData.columns || Object.keys(rawData[0] || {});
 
-    // Filter only by existence of headline_no_site
-    const validData = rawData.filter(d => {
-      const v = d.headline_no_site;
-      return v !== undefined && String(v).trim() !== '';
-    });
-
-    console.log('Valid rows (headline_no_site present):', validData.length);
-
-    if(validData.length === EXPECTED_ROWS){
-      clearError();
-    } else {
-      showError(`Warning: loaded ${validData.length} rows (expected ${EXPECTED_ROWS}). Visualization will render ${validData.length} rows.`);
+    const uniqueWords = new Set();
+    const uniqueData = [];
+    for(const row of rawData){
+      const word = row.headline_no_site ? String(row.headline_no_site).trim() : '';
+      if(!word) continue;
+      const lower = word.toLowerCase();
+      if(uniqueWords.has(lower)) continue;
+      uniqueWords.add(lower);
+      uniqueData.push(row);
+      if(uniqueData.length === EXPECTED_ROWS) break;
     }
 
-    // Render using validData (which preserves order from CSV)
-    renderVisualization(validData);
+    dataset = uniqueData;
+    console.log('Unique valid rows (first up to 1231 unique headline_no_site):', dataset.length);
+
+    if(dataset.length === EXPECTED_ROWS){
+      clearError();
+    } else if(dataset.length > 0){
+      showError(`Warning: found ${dataset.length} unique headline_no_site words (expected ${EXPECTED_ROWS}). Visualization will render ${dataset.length} rows.`);
+    } else {
+      showError('Warning: no valid headline_no_site values found in the CSV.');
+    }
+
+    renderBackground(dataset);
 
   }).catch(err => {
     console.error('CSV loading error:', err);
@@ -168,4 +265,9 @@ function init(){
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+window.loadCSV = loadCSV;
+window.highlightWord = highlightWord;
+window.clearHighlight = clearHighlight;
+window.showAnnotation = showAnnotation;
+
+document.addEventListener('DOMContentLoaded', loadCSV);
