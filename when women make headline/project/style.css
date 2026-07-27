@@ -37,8 +37,8 @@ body{
 
 .warning{background:#ffe6e6; color:#7a1a1a; padding:8px; font-size:13px; border-radius:4px; margin-bottom:8px}
 
-.columns{display:flex; gap:10px; overflow:auto; padding-bottom:40px}
-.column{width:120px; position:relative; height:2462px; /* will be set dynamically too */}
+.columns{width:100%; overflow-x:auto; overflow-y:hidden; padding-bottom:16px}
+.column{width:120px; position:relative; height:auto;}
 .col-track{position:relative; width:100%; height:100%;}
 .line{
   position:absolute;
