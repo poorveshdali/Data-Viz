@@ -34,61 +34,35 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(colDiv);
     });
 
-    // 3. Function to draw the ticks from the loaded CSV data
-    function drawTicks(rows) {
-        const countryMap = {
-            all: 'All countries',
-            india: 'India',
-            sa: 'South Africa',
-            uk: 'UK',
-            usa: 'USA'
-        };
-
+    // 3. Function to draw the ticks based on row count
+    function drawTicks(rowCount) {
         columnsConfig.forEach(col => {
             const container = document.querySelector(`#col-${col.id} .ticks-container`);
-            if (!container) return;
-
-            const matchingRow = rows.find(row => {
-                const rowCountry = String(row.country || '').trim().toLowerCase();
-                return rowCountry === countryMap[col.id].toLowerCase();
-            });
-
-            if (!matchingRow) return;
-
+            // Create a document fragment for better performance when appending 1000+ divs
             const fragment = document.createDocumentFragment();
-            const entries = Object.entries(matchingRow)
-                .filter(([key]) => key && key !== 'country')
-                .map(([keyword, value]) => ({
-                    keyword: String(keyword).trim(),
-                    rank: Number(value)
-                }))
-                .filter(item => !Number.isNaN(item.rank));
-
-            entries.sort((a, b) => {
-                const rankA = Number.isFinite(a.rank) ? a.rank : Number.MAX_SAFE_INTEGER;
-                const rankB = Number.isFinite(b.rank) ? b.rank : Number.MAX_SAFE_INTEGER;
-                return rankA - rankB;
-            });
-
-            entries.forEach(item => {
+            
+            for (let i = 0; i < rowCount; i++) {
                 const tick = document.createElement('div');
                 tick.className = 'tick';
-                tick.setAttribute('title', item.keyword);
-                tick.setAttribute('data-keyword', item.keyword);
-                tick.setAttribute('data-rank', String(item.rank));
                 fragment.appendChild(tick);
-            });
-
+            }
+            
             container.appendChild(fragment);
         });
     }
 
     // 4. Load the data using D3
+    // Make sure your CSV file is named "data.csv" and is in the same folder.
     d3.csv('data.csv').then(data => {
-        const validRows = data.filter(row => String(row.country || '').trim());
-        console.log(`Successfully loaded ${validRows.length} rows from CSV.`);
-        drawTicks(validRows);
+        // If successful, read the length of the CSV and draw that many ticks
+        const rowCount = data.length;
+        console.log(`Successfully loaded ${rowCount} rows from CSV.`);
+        drawTicks(rowCount);
+        
     }).catch(error => {
-        console.warn('CSV not found or CORS error.', error);
+        // Fallback: If CSV fails to load (e.g., viewing as local file without a server), 
+        // default to exactly 1,231 lines so the layout matches the original article.
+        console.warn("CSV not found or CORS error. Rendering 1,231 dummy lines as fallback.");
+        drawTicks(1231);
     });
 });
