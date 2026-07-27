@@ -1,0 +1,58 @@
+:root{
+  --background: #f7efe6;
+  --text: #212121;
+  --muted-text: #6b6b6b;
+  --line-color: #e6d8c6;
+  --accent-color: #b76b3c;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Georgia, "Times New Roman", serif;
+  background:var(--background);
+  color:var(--text);
+}
+.container{
+  display:grid;
+  grid-template-columns: 360px 1fr;
+  gap:48px;
+  padding:48px;
+  align-items:start;
+  max-width:1200px;
+  margin:0 auto;
+}
+.intro{padding-top:28px}
+.serif{font-family: Georgia, "Times New Roman", serif; font-size:20px; line-height:1.2; color:var(--text);}
+.serif .em{font-style:italic; font-weight:700}
+.lede{color:var(--muted-text); max-width:320px; margin-top:12px; font-size:15px}
+
+.viz{background:transparent}
+.viz-header h2{font-family: Georgia, serif; margin:0; font-size:22px}
+.subtitle{color:var(--muted-text); margin:6px 0 18px; font-size:13px}
+
+.columns-header{display:flex; gap:10px; align-items:center; margin-bottom:12px}
+.col-label{width:120px; text-align:center; font-family: "Helvetica Neue", Arial, sans-serif; font-weight:700; letter-spacing:1px; color:var(--text); font-size:12px}
+.flag-col img{display:block; margin:0 auto 6px; width:44px; height:auto}
+
+.warning{background:#ffe6e6; color:#7a1a1a; padding:8px; font-size:13px; border-radius:4px; margin-bottom:8px}
+
+.columns{display:flex; gap:10px; overflow:auto; padding-bottom:40px}
+.column{width:120px; position:relative; height:2462px; /* will be set dynamically too */}
+.col-track{position:relative; width:100%; height:100%;}
+.line{
+  position:absolute;
+  left:0; right:0; height:1px; background:var(--line-color);
+  transition:background 120ms, transform 120ms, height 120ms;
+}
+.line:focus{outline:none}
+.line.active{background:var(--accent-color); height:1.6px}
+
+.tooltip{
+  position:fixed; pointer-events:none; background:rgba(255,255,255,0.98); border:1px solid #e6e6e6; padding:10px; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.08); color:var(--text); font-size:13px; max-width:320px; z-index:1000;
+}
+
+@media (max-width:900px){
+  .container{grid-template-columns:1fr; padding:24px}
+  .columns{overflow:auto}
+}
