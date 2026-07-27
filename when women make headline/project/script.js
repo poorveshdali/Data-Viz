@@ -2,7 +2,7 @@
 const CSV_PATH = 'data.csv';
 const EXPECTED_ROWS = 1231;
 
-let dataset = [];      // rows used for visualization (unique headline_no_site)
+let dataset = [];      // top words array: {word, freq_all, freqs:{india,...}, ranks:{india,...}}
 let headers = [];
 let highlightEls = [];
 let labelEl = null;
@@ -43,6 +43,57 @@ function findHeaderFor(countryKeywords){
   return null;
 }
 
+function tokenizeHeadline(text){
+  if(!text) return [];
+  // lowercase, remove punctuation, remove numbers, split on whitespace
+  const cleaned = text.toString().toLowerCase().replace(/[-–——\u2013\u2014]/g,' ').replace(/[\u2018\u2019\u201C\u201D"'`]/g,'')
+    .replace(/[\(\)\[\]{}:,;.!?<>\/\\@#%&*=+~^$|']/g,' ')
+    .replace(/[0-9]+/g,' ');
+  return cleaned.split(/\s+/).map(s=>s.trim()).filter(s=>s.length>0);
+}
+
+function computeWordFrequency(rows, countryCol){
+  const allCounts = Object.create(null);
+  const countryCounts = {
+    india: Object.create(null),
+    south_africa: Object.create(null),
+    uk: Object.create(null),
+    usa: Object.create(null)
+  };
+
+  for(const row of rows){
+    const text = row.headline_no_site || '';
+    const tokens = tokenizeHeadline(text);
+    const rawCountry = (countryCol && row[countryCol]) ? String(row[countryCol]).toLowerCase() : '';
+    let which = null;
+    if(/india/.test(rawCountry)) which = 'india';
+    else if(/south/.test(rawCountry) || /africa/.test(rawCountry)) which = 'south_africa';
+    else if(/uk|britain|united kingdom|england/.test(rawCountry)) which = 'uk';
+    else if(/us|usa|united states|america/.test(rawCountry)) which = 'usa';
+
+    for(const t of tokens){
+      // ignore tokens that contain digits or are very short
+      if(/[0-9]/.test(t)) continue;
+      if(t.length < 2) continue;
+      allCounts[t] = (allCounts[t] || 0) + 1;
+      if(which) countryCounts[which][t] = (countryCounts[which][t] || 0) + 1;
+    }
+  }
+
+  return { allCounts, countryCounts };
+}
+
+function computeRanksFromCounts(counts){
+  // counts: object word->count
+  const entries = Object.keys(counts).map(w => ({word:w, count: counts[w]}));
+  entries.sort((a,b) => b.count - a.count || a.word.localeCompare(b.word));
+  const ranks = Object.create(null);
+  for(let i=0;i<entries.length;i++){
+    ranks[entries[i].word] = i+1; // 1-based
+  }
+  return {entries, ranks};
+}
+
 function renderBackground(data){
   const columnsRoot = document.getElementById('columns');
   const tooltip = document.getElementById('tooltip');
@@ -64,6 +115,7 @@ function renderBackground(data){
       const line = document.createElement('div');
       line.className = 'line';
       line.setAttribute('data-index', i);
+      line.setAttribute('data-word', data[i].word);
       line.setAttribute('tabindex', '0');
       line.style.top = (i * spacing) + 'px';
       line.setAttribute('aria-label', `Rank ${i+1}`);
@@ -93,15 +145,16 @@ function renderBackground(data){
     document.querySelectorAll('.line').forEach(n => n.classList.remove('active'));
     document.querySelectorAll(`.line[data-index='${i}']`).forEach(n => n.classList.add('active'));
 
-    const row = data[i] || {};
-    let html = `<div><strong>Rank:</strong> ${i+1}</div>`;
-    html += `<div><strong>Word:</strong> ${row.headline_no_site || ''}</div>`;
-
-    Object.keys(row).forEach(k => {
-      if(k === 'headline_no_site') return;
-      const val = row[k];
-      if(val !== undefined && String(val).trim() !== ''){
-        html += `<div><strong>${k.replace(/_/g,' ')}:</strong> ${val}</div>`;
+    const wordObj = data[i];
+    let html = `<div><strong>Word:</strong> ${wordObj.word}</div>`;
+    html += `<div><strong>Rank (all):</strong> ${i+1}</div>`;
+    html += `<div><strong>Frequency (all):</strong> ${wordObj.freq_all}</div>`;
+    // show per-country ranks and freqs
+    ['india','south_africa','uk','usa'].forEach(k => {
+      const r = wordObj.ranks[k];
+      const f = wordObj.freqs[k] || 0;
+      if(r){
+        html += `<div><strong>${k.replace('_',' ')}:</strong> rank ${r} — ${f}</div>`;
       }
     });
 
@@ -140,34 +193,18 @@ function highlightWord(word){
   clearHighlight();
   if(!word){ showError('No word provided to highlight'); return; }
   const target = String(word).trim().toLowerCase();
-
-  const rowIndex = dataset.findIndex(r => (r.headline_no_site||'').toString().trim().toLowerCase() === target);
+  const rowIndex = dataset.findIndex(r => r.word === target);
   if(rowIndex === -1){ showError('Word not found in dataset.'); return; }
   clearError();
 
+  const wordObj = dataset[rowIndex];
   const columnsRoot = document.getElementById('columns');
   const colElems = Array.from(columnsRoot.querySelectorAll('.column'));
   const totalRows = dataset.length;
   const chartHeight = colElems[0] ? colElems[0].clientHeight : Math.max(1200, totalRows * 2);
 
-  const allHeader = findHeaderFor(['rankall','rank_all','allcountries','all']);
-  const indiaHeader = findHeaderFor(['india','rankindia','rank_india']);
-  const saHeader = findHeaderFor(['southafrica','south_africa','south','ranksouth']);
-  const ukHeader = findHeaderFor(['uk','britain','unitedkingdom','rankuk','rank_uk']);
-  const usaHeader = findHeaderFor(['usa','us','unitedstates','rankusa','rank_usa']);
-
-  const countryHeaders = [allHeader, indiaHeader, saHeader, ukHeader, usaHeader];
-
-  const ranks = countryHeaders.map(h => {
-    if(!h) return null;
-    const val = dataset[rowIndex][h];
-    const n = parseInt(String(val||'').replace(/[^0-9]/g,''), 10);
-    return isNaN(n) ? null : n;
-  });
-
-  for(let i=0;i<ranks.length;i++){
-    if(ranks[i] == null) ranks[i] = rowIndex + 1;
-  }
+  // use computed ranks (wordObj.ranks)
+  const ranks = [wordObj.ranks.all || rowIndex+1, wordObj.ranks.india || rowIndex+1, wordObj.ranks.south_africa || rowIndex+1, wordObj.ranks.uk || rowIndex+1, wordObj.ranks.usa || rowIndex+1];
 
   ranks.forEach((rank, colIdx) => {
     const col = colElems[colIdx];
