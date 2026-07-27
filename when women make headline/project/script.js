@@ -129,14 +129,6 @@ function renderVisualization(rawData) {
       .attr('class', 'column-group')
       .attr('transform', (row, colIndex) => `translate(${margin.left + colIndex * columnWidth},0)`);
 
-  columnGroups.append('line')
-    .attr('x1', columnWidth / 2)
-    .attr('x2', columnWidth / 2)
-    .attr('y1', margin.top)
-    .attr('y2', margin.top + (rankDomainMax - 1) * rowHeight)
-    .attr('stroke', '#c8b9a6')
-    .attr('stroke-width', 1.5);
-
   columnGroups.append('text')
     .attr('x', columnWidth / 2)
     .attr('y', margin.top - 20)
@@ -163,9 +155,9 @@ function renderVisualization(rawData) {
         .attr('x2', columnWidth / 2 + 14)
         .attr('y1', d => yScale(d.rank))
         .attr('y2', d => yScale(d.rank))
-        .attr('stroke', '#2b2b2b')
-        .attr('stroke-width', 1)
-        .attr('stroke-opacity', 0.45)
+        .attr('stroke', '#E0D5B8')
+        .attr('stroke-width', 4)
+        .attr('stroke-opacity', 1)
         .attr('cursor', 'pointer')
         .on('mouseenter', (event, d) => {
           tooltip.html(`<div><strong>Keyword:</strong> ${d.keyword}</div><div><strong>Country:</strong> ${d.country}</div><div><strong>Rank:</strong> ${d.rank}</div>`);
