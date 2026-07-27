@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Your Page Title</title>
+  <title>data viz</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Your name">
@@ -13,9 +13,116 @@
   <meta property="og:site_name" content="Your Site Name">
   <link href="style.css" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <!-- p5.js Library Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
 </head>
 <body>
-  <h1>Your content here!</h1>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <p class="kicker">An atlas of visual experiments</p>
+      <h1>data <em>viz</em></h1>
+      <p class="issue">Issue 01 <span aria-hidden="true">/</span> 2024</p>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="site-nav" aria-label="Visualization sections">
+    <div class="nav-inner">
+      <span class="nav-label">Contents</span>
+      <a href="#observable-section">01 <span>Observable</span></a>
+      <a href="#p5js-section">02 <span>p5.js</span></a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="intro">
+      <p class="eyebrow">Field notes in motion</p>
+      <p class="dek">Two studies in translating information into form—one drawn from the web, the other from code.</p>
+    </div>
+
+    <!-- Observable Section -->
+    <section id="observable-section" class="feature feature--observable">
+      <div class="section-heading">
+        <p class="section-number">01</p>
+        <div>
+          <p class="eyebrow">Interactive study</p>
+          <h2>Observable Visualization</h2>
+        </div>
+      </div>
+      <div class="embed-frame">
+        <iframe width="100%" height="500" frameborder="0" 
+          src="https://observablehq.com/embed/15d1ceeafca9c4ab@153?cell=*&api_key=aad5b02bf434b214d843a3d57cb6e477ebbdbfb1"
+          title="Data Visualization"
+          loading="lazy">
+        </iframe>
+      </div>
+
+      <!-- SVG with Red Rectangle and White Circle -->
+      <div class="symbol-mark" aria-label="A red field with a white circle">
+        <svg width="200" height="150" viewBox="0 0 200 150">
+          <rect width="200" height="150" fill="currentColor" />
+          <circle cx="100" cy="75" r="40" fill="white" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- p5.js Section -->
+    <section id="p5js-section" class="feature feature--sketch">
+      <div class="section-heading">
+        <p class="section-number">02</p>
+        <div>
+          <p class="eyebrow">Generative study</p>
+          <h2>p5.js 3D Sphere Sketch</h2>
+        </div>
+      </div>
+      <div id="p5-container"></div>
+    </section>
+  </main>
+
+  <!-- p5.js Sketch Script -->
+  <script>
+    function setup() {
+      let canvas = createCanvas(710, 400, WEBGL);
+      canvas.parent('p5-container');
+      angleMode(DEGREES);
+      strokeWeight(5);
+      noFill();
+      stroke(32, 8, 64);
+      describe(
+        'Users can click on the screen and drag to adjust their perspective in 3D space. The space contains a sphere of dark purple cubes on a light pink background.'
+      );
+    }
+
+    function draw() {
+      background(250, 180, 200);
+
+      // Call every frame to adjust camera based on mouse/touch
+      orbitControl();
+
+      // Add continuous rotation using frameCount
+      rotateY(frameCount * 0.5);
+      rotateX(frameCount * 0.3);
+
+      // Rotate rings in a half circle to create a sphere of cubes
+      for (let zAngle = 0; zAngle < 180; zAngle += 30) {
+        // Rotate cubes in a full circle to create a ring of cubes
+        for (let xAngle = 0; xAngle < 360; xAngle += 30) {
+          push();
+
+          // Rotate from center of sphere
+          rotateZ(zAngle);
+          rotateX(xAngle);
+
+          // Then translate down 400 units
+          translate(0, 400, 0);
+          box();
+          pop();
+        }
+      }
+    }
+  </script>
+
   <script src="script.js"></script>
 </body>
 </html>
