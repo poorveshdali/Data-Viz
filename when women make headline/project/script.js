@@ -98,12 +98,13 @@ function renderVisualization(rawData) {
     .attr('fill', '#5d5d5d')
     .text('Each column shows the rank distribution for keywords in that country.');
 
-  svg.append('text')
-    .attr('x', margin.left)
-    .attr('y', margin.top - 34)
-    .attr('font-family', 'Inter, sans-serif')
-    .attr('font-size', 11)
-    .attr('fill', '#666')
+  const axisLabel = svg.append('g')
+    .attr('class', 'axis-label')
+    .attr('transform', `translate(${margin.left - 72}, ${margin.top + ((rankDomainMax - 1) * rowHeight) / 2}) rotate(-90)`);
+
+  axisLabel.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'middle')
     .text('WORD OCCURS MORE OFTEN →');
 
   const grid = svg.append('g').attr('class', 'rank-grid');
