@@ -1,55 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Words used in headlines about women</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women in Headlines - The Pudding Recreation</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Importing D3.js for easy CSV parsing -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-  <main class="container">
-    <aside class="intro">
-      <h1 class="serif">Words used in <span class="em">words</span> in headlines about women</h1>
-      <p class="lede">Shown here are the 1,231 unique words most frequently used by Indian, South African, British, and American publishers in headlines that report about women. These <strong>words</strong> are arranged here in a decreasing order of their frequency.</p>
-    </aside>
+    <main class="container">
+        <!-- Left Column: Sticky Introductory Text -->
+        <section class="text-section">
+            <div class="text-content">
+                <p>Shown here are the 1,231 unique words most frequently used by Indian, South African, British, and American publishers in headlines that report about women.</p>
+                <p>These <strong>words</strong> <span class="inline-tick"></span> are arranged here in a decreasing order of their frequency.</p>
+            </div>
+        </section>
 
-    <section class="viz">
-      <header class="viz-header">
-        <h2>Words used in headlines about women</h2>
-        <p class="subtitle">Arranged by country and ordered by frequency</p>
-      </header>
+        <!-- Right Column: Visualization -->
+        <section class="vis-section">
+            <div class="vis-header">
+                <h2>Words used in headlines about women</h2>
+                <p>Arranged by country and ordered by frequency</p>
+            </div>
+            
+            <div class="chart-container">
+                <!-- Y-Axis Label -->
+                <div class="y-axis-label">
+                    <span>WORD OCCURS MORE OFTEN &rarr;</span>
+                </div>
+                <!-- Data Columns dynamically injected here -->
+                <div class="columns-wrapper" id="columns-wrapper"></div>
+            </div>
+        </section>
+    </main>
 
-      <div class="columns-header">
-        <div class="col-label">ALL<br/>COUNTRIES</div>
-        <div class="col-label flag-col">
-          <img src="https://flagcdn.com/w80/in.png" alt="Flag of India" />
-          <div>INDIA</div>
-        </div>
-        <div class="col-label flag-col">
-          <img src="https://flagcdn.com/w80/za.png" alt="Flag of South Africa" />
-          <div>SOUTH<br/>AFRICA</div>
-        </div>
-        <div class="col-label flag-col">
-          <img src="https://flagcdn.com/w80/gb.png" alt="Flag of United Kingdom" />
-          <div>UK</div>
-        </div>
-        <div class="col-label flag-col">
-          <img src="https://flagcdn.com/w80/us.png" alt="Flag of United States" />
-          <div>USA</div>
-        </div>
-      </div>
-
-      <div id="warning" class="warning" hidden></div>
-
-      <div class="columns" id="columns" tabindex="0">
-        <!-- columns populated by script -->
-      </div>
-
-      <div id="tooltip" class="tooltip" role="status" aria-live="polite" hidden></div>
-    </section>
-  </main>
-
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
