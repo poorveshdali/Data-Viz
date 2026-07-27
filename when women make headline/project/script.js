@@ -1,5 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Define the structural data for the columns
+    const tooltip = document.getElementById('tooltip');
+
+    function showTooltip(event, keyword, rank) {
+        tooltip.innerHTML = `<strong>${keyword}</strong><br>Rank: ${rank}`;
+        tooltip.classList.add('visible');
+        tooltip.setAttribute('aria-hidden', 'false');
+        tooltip.style.left = `${event.clientX + 12}px`;
+        tooltip.style.top = `${event.clientY + 12}px`;
+    }
+
+    function hideTooltip() {
+        tooltip.classList.remove('visible');
+        tooltip.setAttribute('aria-hidden', 'true');
+    }
+
     const columnsConfig = [
         { id: 'all', label: 'ALL<br>COUNTRIES', flag: '' },
         { id: 'india', label: 'INDIA', flag: '🇮🇳' },
@@ -10,14 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const wrapper = document.getElementById('columns-wrapper');
 
-    // 2. Generate the DOM structure for the columns and headers
     columnsConfig.forEach(col => {
-        // Create the main column div
         const colDiv = document.createElement('div');
         colDiv.className = 'country-column';
         colDiv.id = `col-${col.id}`;
 
-        // Create the header (Flag + Country Name)
         const header = document.createElement('div');
         header.className = 'col-header';
         header.innerHTML = `
@@ -26,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         colDiv.appendChild(header);
 
-        // Create the container that will hold the ticks
         const ticksContainer = document.createElement('div');
         ticksContainer.className = 'ticks-container';
         colDiv.appendChild(ticksContainer);
@@ -34,35 +44,147 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.appendChild(colDiv);
     });
 
-    // 3. Function to draw the ticks based on row count
-    function drawTicks(rowCount) {
+    function clearHighlights() {
+        document.querySelectorAll('.tick').forEach(tick => {
+            tick.classList.remove('muted', 'highlight');
+        });
+        document.querySelectorAll('.tick-label').forEach(label => label.remove());
+    }
+
+    function drawTicks(rows) {
+        const countryMap = {
+            all: 'All countries',
+            india: 'India',
+            sa: 'South Africa',
+            uk: 'UK',
+            usa: 'USA'
+        };
+
         columnsConfig.forEach(col => {
             const container = document.querySelector(`#col-${col.id} .ticks-container`);
-            // Create a document fragment for better performance when appending 1000+ divs
+            if (!container) return;
+
+            const matchingRow = rows.find(row => {
+                const rowCountry = String(row.country || '').trim().toLowerCase();
+                return rowCountry === countryMap[col.id].toLowerCase();
+            });
+
+            if (!matchingRow) return;
+
             const fragment = document.createDocumentFragment();
-            
-            for (let i = 0; i < rowCount; i++) {
+            const entries = Object.entries(matchingRow)
+                .filter(([key]) => key && key !== 'country')
+                .map(([keyword, value]) => {
+                    const normalizedValue = String(value ?? '').trim();
+                    if (!normalizedValue) return null;
+
+                    const rank = Number(normalizedValue);
+                    if (!Number.isFinite(rank)) return null;
+
+                    return {
+                        keyword: String(keyword).trim(),
+                        rank
+                    };
+                })
+                .filter(Boolean)
+                .sort((a, b) => a.rank - b.rank || a.keyword.localeCompare(b.keyword));
+
+            entries.forEach(item => {
                 const tick = document.createElement('div');
                 tick.className = 'tick';
+                tick.setAttribute('data-keyword', item.keyword);
+                tick.setAttribute('data-rank', String(item.rank));
+                tick.addEventListener('mouseenter', event => showTooltip(event, item.keyword, item.rank));
+                tick.addEventListener('mousemove', event => showTooltip(event, item.keyword, item.rank));
+                tick.addEventListener('mouseleave', hideTooltip);
                 fragment.appendChild(tick);
-            }
-            
+            });
+
             container.appendChild(fragment);
         });
     }
 
-    // 4. Load the data using D3
-    // Make sure your CSV file is named "data.csv" and is in the same folder.
-    d3.csv('data.csv').then(data => {
-        // If successful, read the length of the CSV and draw that many ticks
-        const rowCount = data.length;
-        console.log(`Successfully loaded ${rowCount} rows from CSV.`);
-        drawTicks(rowCount);
-        
+    function loadData() {
+        return d3.csv('data.csv').catch(error => {
+            console.warn('Primary CSV load failed, trying fallback fetch.', error);
+            return fetch('data.csv')
+                .then(response => {
+                    if (!response.ok) throw new Error('CSV request failed');
+                    return response.text();
+                })
+                .then(text => d3.csvParse(text));
+        });
+    }
+
+    loadData().then(data => {
+        const validRows = data.filter(row => String(row.country || '').trim());
+        console.log(`Successfully loaded ${validRows.length} rows from CSV.`);
+        drawTicks(validRows);
+        updateTickStates();
     }).catch(error => {
-        // Fallback: If CSV fails to load (e.g., viewing as local file without a server), 
-        // default to exactly 1,231 lines so the layout matches the original article.
-        console.warn("CSV not found or CORS error. Rendering 1,231 dummy lines as fallback.");
-        drawTicks(1231);
+        console.warn('CSV not found or CORS error.', error);
     });
+
+    function updateTickStates() {
+        const ticks = document.querySelectorAll('.tick');
+        clearHighlights();
+
+        const stepTwoActive = document.getElementById('step-2').getBoundingClientRect().top < window.innerHeight * 0.6;
+        const stepThreeActive = document.getElementById('step-3').getBoundingClientRect().top < window.innerHeight * 0.6;
+
+        if (stepTwoActive && !stepThreeActive) {
+            ticks.forEach(tick => tick.classList.add('muted'));
+
+            const highlightedTicks = Array.from(ticks).filter(tick => tick.getAttribute('data-keyword')?.toLowerCase() === 'sue');
+            highlightedTicks.forEach(tick => {
+                tick.classList.remove('muted');
+                tick.classList.add('highlight');
+            });
+
+            const usaColumn = document.getElementById('col-usa');
+            if (usaColumn) {
+                const usaTick = highlightedTicks.find(tick => tick.closest('#col-usa'));
+                if (usaTick && !usaColumn.querySelector('.tick-label')) {
+                    const label = document.createElement('span');
+                    label.className = 'tick-label';
+                    label.textContent = 'SUE';
+                    usaTick.parentNode.appendChild(label);
+                }
+            }
+        }
+
+        if (stepThreeActive) {
+            ticks.forEach(tick => tick.classList.add('muted'));
+
+            const highlightedTicks = Array.from(ticks).filter(tick => tick.getAttribute('data-keyword')?.toLowerCase() === 'black');
+            highlightedTicks.forEach(tick => {
+                tick.classList.remove('muted');
+                tick.classList.add('highlight');
+            });
+
+            const usaColumn = document.getElementById('col-usa');
+            if (usaColumn) {
+                const usaTick = highlightedTicks.find(tick => tick.closest('#col-usa'));
+                if (usaTick && !usaColumn.querySelector('.tick-label')) {
+                    const label = document.createElement('span');
+                    label.className = 'tick-label';
+                    label.textContent = 'BLACK';
+                    usaTick.parentNode.appendChild(label);
+                }
+            }
+        }
+    }
+
+    const steps = document.querySelectorAll('.step');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                updateTickStates();
+            }
+        });
+    }, { threshold: 0.6 });
+
+    steps.forEach(step => observer.observe(step));
+    window.addEventListener('scroll', updateTickStates, { passive: true });
+    window.addEventListener('resize', updateTickStates);
 });
