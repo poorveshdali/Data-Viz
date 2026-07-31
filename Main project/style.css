@@ -305,7 +305,7 @@ body {
   width: 100vw;
   height: 460vh;
   min-height: 3100px;
-  margin-top: 60px;
+  margin-top: 0;
   background: linear-gradient(180deg, var(--bg-navy) 0%, #0a1b2f 100%);
 }
 
