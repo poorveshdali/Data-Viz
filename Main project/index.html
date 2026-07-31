@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Why Is Everyone Building Ports?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__content">
+        <h1>Why Is Everyone Building Ports?</h1>
+        <p>
+          How ocean terminals became the world’s most powerful instruments of trade,
+          diplomacy, and geopolitical leverage.
+        </p>
+      </div>
+    </header>
+
+    <section class="stat-section">
+      <div class="stat-section__copy">
+        <p>
+          More than <span class="highlight">80%</span> of world merchandise trade by volume travels by sea
+        </p>
+      </div>
+
+      <div class="panel-frame">
+        <div class="panel-inner" id="trade-container"></div>
+      </div>
+
+      <article class="port-message-card">
+        <p>Almost everything you own passed through a port.</p>
+      </article>
+
+      <section class="route-section" aria-label="Cargo ship route">
+        <svg class="route-track" viewBox="0 0 22 1900" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M11 0V1900" />
+        </svg>
+
+        <img class="cargo-ship" src="cargo%20.svg" alt="Cargo ship" />
+
+        <div class="route-node route-node--one"><span></span><p>Not Countries</p></div>
+        <div class="route-node route-node--two"><span></span><p>Not Borders</p></div>
+        <div class="route-node route-node--three"><span></span><p>Ports</p></div>
+        <p class="route-story route-story--right">Today, a port is no longer just a place to dock.</p>
+        <p class="route-story route-story--left">Consider Hambantota, Sri Lanka.<br><span>(or) Start at the southern tip of Sri Lanka.</span></p>
+      </section>
+
+      <section class="lanka-story" aria-label="Hambantota financing story">
+        <div class="lanka-sticky">
+          <img id="sri-lanka-map" src="sri%20lanka%20map.png" alt="Map of Sri Lanka" />
+          <div class="lanka-after-map">
+            <p class="lanka-question">Why spend over a billion dollars on a quiet shoreline when Colombo—Sri Lanka’s bustling commercial hub—is just hours away?</p>
+            <div class="cargo-grid" aria-label="200 cargo ship silhouettes"></div>
+            <article class="hambantota-traffic-card">
+              <p>Hambantota is one of the busiest port in the world, where it can take approximately 200 to 300 vessels pass this lane daily (including roughly 4,500 oil tankers), carrying nearly half of the world's maritime trade.</p>
+            </article>
+          </div>
+        </div>
+        <article class="lanka-loan-card">
+          <p>In 2008, China loaned Sri Lanka over $1.1 billion to build a deep-water port in Hambantota—framed as a partnership for regional development.</p>
+        </article>
+      </section>
+
+      <section class="map-two-story" aria-label="Sri Lanka shipping lane">
+        <div class="map-two-sticky">
+          <div class="map-two-visual">
+            <img id="sri-lanka-map-two" src="sri%20lanka%20map2.svg" alt="Map of Sri Lanka" />
+          </div>
+          <div class="map-two-dots" aria-hidden="true"></div>
+          <svg class="map-two-route" viewBox="0 0 1440 1000" preserveAspectRatio="none" aria-hidden="true">
+            <path id="shipping-lane-route" d="M-24 345 C150 650 395 885 720 892 C1040 899 1272 663 1462 424" />
+          </svg>
+          <article class="shipping-lane-card">
+            <p>The port sits just north of the East–West shipping lane connecting the Strait of Malacca to the Suez Canal.</p>
+          </article>
+          <article class="shipping-lane-card shipping-lane-card--followup">
+            <p>Global shipping lanes converge around the southern tip of Sri Lanka, whoever controls or operates out of Hambantota can monitor, influence, or potentially disrupt traffic moving between the world's real <mark>choke points</mark>.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="china-ports-story" aria-label="Chinese port investments">
+        <div class="china-ports-sticky">
+          <div class="china-ports-map-shell" aria-label="Interactive map of China's overseas ports">
+            <svg id="map" aria-label="Map of China's overseas ports"></svg>
+            <div class="china-map-legend"><span><i class="china-map-line"></i> China's ownership route</span><span><i class="china-map-dot"></i> overseas port</span></div>
+          </div>
+          <article class="china-ports-card">
+            <p>Hambantota is not an anomaly. Over the past two decades, Chinese state-backed firms have acquired stakes in nearly 100 ports worldwide.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="overseas-ports-story" aria-label="Global overseas port ownership">
+        <div class="overseas-ports-sticky">
+          <div class="overseas-map-shell">
+            <iframe class="overseas-map-frame" src="overseas-ports-map.html" title="Interactive global overseas port ownership map"></iframe>
+          </div>
+          <article class="overseas-ports-card">
+            <p>And China isn't playing this game alone. Global powers and state-backed conglomerates are racing to control maritime real estate.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="analysis-intro-story" aria-label="Global ownership analysis introduction">
+        <div class="analysis-intro-sticky">
+          <p class="analysis-intro-text">Here is an analysis of global overseas port ownership by maritime chokepoints, indirect approach/feeder hubs, and strategic regional trade corridors.</p>
+        </div>
+      </section>
+
+      <section class="port-reach-story" aria-label="Global overseas port reach bubble chart">
+        <div class="port-reach-sticky">
+          <div class="port-reach-frame">
+            <iframe src="port-reach-galaxy.html" title="Global overseas port reach bubble chart"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <footer class="story-conclusion">
+        <p>Ports were once seen as quiet commercial infrastructure—mere parking spots for global trade. Today, they are the world's most valuable strategic real estate. As the map of global influence gets redrawn, controlling the sea isn't about owning the water; it's about owning the land where the water meets the world.</p>
+      </footer>
+
+    </section>
+
+    <div class="tip" id="tip"></div>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="china-script.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
