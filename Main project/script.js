@@ -84,7 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lankaProgress = Math.max(0, Math.min(1, -lankaBounds.top / lankaTravel));
     const mapLift = Math.max(0, Math.min(1, (lankaProgress - 0.38) / 0.14));
     const contentReveal = Math.max(0, Math.min(1, (lankaProgress - 0.54) / 0.08));
-    const gridProgress = Math.max(0, Math.min(1, (lankaProgress - 0.66) / 0.30));
+    // Fill the 200-vessel field in a compact scroll beat, left to right.
+    const gridProgress = Math.max(0, Math.min(1, (lankaProgress - 0.66) / 0.14));
     const contentLift = Math.max(0, Math.min(1, (lankaProgress - 0.62) / 0.26));
     const trafficReveal = Math.max(0, Math.min(1, (lankaProgress - 0.82) / 0.10));
     const contentScrollDistance = Math.max(700, lankaAfterMap.offsetHeight - window.innerHeight * 0.20);
@@ -96,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     trafficCard.style.transform = `translateY(${40 * (1 - trafficReveal)}px)`;
 
     cargoTiles.forEach((tile, index) => {
-      const tileStart = index / (cargoTiles.length * 1.1);
-      const tileProgress = Math.max(0, Math.min(1, (gridProgress - tileStart) * 12));
+      const tileStart = (index / (cargoTiles.length - 1)) * 0.45;
+      const tileProgress = Math.max(0, Math.min(1, (gridProgress - tileStart) / 0.55));
       tile.style.opacity = `${tileProgress}`;
       tile.style.transform = `translateX(${-24 * (1 - tileProgress)}px) scale(${0.9 + tileProgress * 0.1})`;
     });
