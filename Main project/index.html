@@ -1,141 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Why Is Everyone Building Ports?</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <header class="hero">
-      <div class="hero__content">
-        <h1>Who's Building Ports Beyond Their Borders?</h1>
-        <p>
-          How nations are investing in overseas ports to shape trade, secure influence,
-          and expand their strategic reach.
-        </p>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive investigation into overseas port involvement and the networks that keep global trade moving.">
+  <title>Who's Building Ports Beyond Their Borders?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">An investigation in maritime infrastructure</p>
+      <div class="hero-copy">
+        <h1 id="page-title">Who’s building ports<br>beyond their borders?</h1>
+        <p>How nations are investing in overseas ports to shape trade, secure influence, and expand their strategic reach.</p>
       </div>
+      <p class="scroll-cue" aria-hidden="true">Scroll to follow the routes <span>↓</span></p>
     </header>
 
-    <section class="stat-section">
-      <div class="stat-section__copy">
-        <p>
-          More than <span class="highlight">80%</span> of world merchandise trade by volume travels by sea
-        </p>
+    <section class="trade story" id="trade" aria-label="The world moves by sea">
+      <div class="sticky world-stage" data-stage="trade">
+        <div class="ocean-routes" aria-hidden="true"></div>
+        <svg class="world-map" data-map="trade" aria-label="World map showing shipping routes and ports"></svg>
+        <div class="trade-copy">
+          <p class="section-number">01 — The world moves by sea</p>
+          <p class="stat">80<span>%+</span></p>
+          <p class="stat-caption">More than 80% of world merchandise trade by volume travels by sea.</p>
+          <div class="objects" aria-hidden="true"><span>Your phone.</span><span>Your clothes.</span><span>Your car.</span><span>Your coffee.</span><span>Your medicine.</span></div>
+          <p class="port-reveal">Almost everything you own has passed through one of these dots.<br><strong>Not countries. Not borders. <em>Ports.</em></strong></p>
+        </div>
       </div>
-
-      <div class="panel-frame">
-        <div class="panel-inner" id="trade-container"></div>
-      </div>
-
-      <article class="port-message-card">
-        <p>Almost everything you own passed through a port.</p>
-      </article>
-
-      <section class="route-section" aria-label="Cargo ship route">
-        <svg class="route-track" viewBox="0 0 22 1900" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M11 0V1900" />
-        </svg>
-
-        <img class="cargo-ship" src="cargo%20.svg" alt="Cargo ship" />
-
-        <div class="route-node route-node--one"><span></span><p>Not Countries</p></div>
-        <div class="route-node route-node--two"><span></span><p>Not Borders</p></div>
-        <div class="route-node route-node--three"><span></span><p>Ports</p></div>
-        <p class="route-story route-story--right">Today, a port is no longer just a place to dock.</p>
-        <p class="route-story route-story--left">Consider Hambantota, Sri Lanka.<br><span>(or) Start at the southern tip of Sri Lanka.</span></p>
-      </section>
-
-      <section class="lanka-story" aria-label="Hambantota financing story">
-        <div class="lanka-sticky">
-          <img id="sri-lanka-map" src="sri%20lanka%20map.png" alt="Map of Sri Lanka" />
-          <div class="lanka-after-map">
-            <p class="lanka-question">Why spend over a billion dollars on a quiet shoreline when Colombo—Sri Lanka’s bustling commercial hub—is just hours away?</p>
-            <div class="cargo-grid" aria-label="200 cargo ship silhouettes"></div>
-            <article class="hambantota-traffic-card">
-              <p>Hambantota is one of the busiest port in the world, where it can take approximately 200 to 300 vessels pass this lane daily (including roughly 4,500 oil tankers), carrying nearly half of the world's maritime trade.</p>
-            </article>
-          </div>
-        </div>
-        <article class="lanka-loan-card">
-          <p>In 2008, China loaned Sri Lanka over $1.1 billion to build a deep-water port in Hambantota—framed as a partnership for regional development.</p>
-        </article>
-      </section>
-
-      <section class="map-two-story" aria-label="Sri Lanka shipping lane">
-        <div class="map-two-sticky">
-          <div class="map-two-visual">
-            <img id="sri-lanka-map-two" src="sri%20lanka%20map2.svg" alt="Map of Sri Lanka" />
-          </div>
-          <div class="map-two-dots" aria-hidden="true"></div>
-          <svg class="map-two-route" viewBox="0 0 1440 1000" preserveAspectRatio="none" aria-hidden="true">
-            <path id="shipping-lane-route" d="M-24 345 C150 650 395 885 720 892 C1040 899 1272 663 1462 424" />
-          </svg>
-          <article class="shipping-lane-card">
-            <p>The port sits just north of the East–West shipping lane connecting the Strait of Malacca to the Suez Canal.</p>
-          </article>
-          <article class="shipping-lane-card shipping-lane-card--followup">
-            <p>Global shipping lanes converge around the southern tip of Sri Lanka, whoever controls or operates out of Hambantota can monitor, influence, or potentially disrupt traffic moving between the world's real <mark>choke points</mark>.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="china-ports-story" aria-label="Chinese port investments">
-        <div class="china-ports-sticky">
-          <div class="china-ports-map-shell" aria-label="Interactive map of China's overseas ports">
-            <svg id="map" aria-label="Map of China's overseas ports"></svg>
-            <div class="china-map-legend"><span><i class="china-map-line"></i> China's ownership route</span><span><i class="china-map-dot"></i> overseas port</span></div>
-          </div>
-          <article class="china-ports-card">
-            <p>Hambantota is not an anomaly. Over the past two decades, Chinese state-backed firms have acquired stakes in nearly 100 ports worldwide.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="overseas-ports-story" aria-label="Global overseas port ownership">
-        <div class="overseas-ports-sticky">
-          <div class="overseas-map-shell">
-            <iframe class="overseas-map-frame" src="overseas-ports-map.html" title="Interactive global overseas port ownership map"></iframe>
-          </div>
-          <article class="overseas-ports-card">
-            <p>And China isn't playing this game alone. Global powers and state-backed conglomerates are racing to control maritime real estate.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="analysis-intro-story" aria-label="Global ownership analysis introduction">
-        <div class="analysis-intro-sticky">
-          <p class="analysis-intro-text">Here is an analysis of global overseas port ownership by maritime chokepoints, indirect approach/feeder hubs, and strategic regional trade corridors.</p>
-        </div>
-      </section>
-
-      <section class="port-reach-story" aria-label="Global overseas port reach bubble chart">
-        <div class="port-reach-sticky">
-          <div class="port-reach-frame">
-            <iframe src="port-ownership-treemap.html" title="Global overseas port ownership treemap"></iframe>
-          </div>
-        </div>
-      </section>
-
-      <footer class="story-conclusion">
-        <p>Ports were once seen as quiet commercial infrastructure—mere parking spots for global trade. Today, they are the world's most valuable strategic real estate. As the map of global influence gets redrawn, controlling the sea isn't about owning the water; it's about owning the land where the water meets the world.</p>
-      </footer>
-
     </section>
 
-    <div class="tip" id="tip"></div>
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <script src="china-script.js"></script>
-    <script src="script.js"></script>
-  </body>
+    <section class="one-port story" id="one-port" aria-label="Hambantota, Sri Lanka">
+      <div class="sticky lanka-stage">
+        <p class="section-number">02 — One port</p>
+        <img src="sri%20lanka%20map.png" class="lanka-shape" alt="Outline map of Sri Lanka">
+        <div class="lanka-pin hambantota-pin"><i></i><span>Hambantota</span></div>
+        <div class="lanka-copy">
+          <h2>A billion-dollar<br>question.</h2>
+          <p class="money">$1.12B</p>
+          <p>In 2017, China Merchants Port Holdings agreed to invest up to $1.12 billion in a long-term port arrangement.</p>
+          <p class="question">Why here?</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="why-here story" id="why-here" aria-label="Why Hambantota">
+      <div class="sticky lanka-route-stage">
+        <p class="section-number">03 — Why here?</p>
+        <img src="sri%20lanka%20map2.svg" class="lanka-detail" alt="Map of Sri Lanka showing Colombo and Hambantota">
+        <div class="place-label colombo"><b></b>Colombo</div><div class="place-label hambantota"><b></b>Hambantota</div>
+        <svg class="indian-route" viewBox="0 0 1000 700" preserveAspectRatio="none" aria-hidden="true"><path d="M-60,270 C180,450 320,515 500,505 S800,405 1060,130"/></svg>
+        <div class="why-copy">
+          <p class="kicker">Sri Lanka already had a major commercial port.</p>
+          <h2>So why build another?</h2>
+          <p class="route-answer">The port was not far from global trade.<br><strong>Global trade was passing right beside it.</strong></p>
+          <p class="route-note">Hambantota sits close to the East–West corridor linking the Strait of Malacca and Suez.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="follow-route story" id="follow-route" aria-label="A maritime journey through chokepoints">
+      <div class="sticky route-stage">
+        <p class="section-number">04 — Follow the route</p>
+        <svg class="world-map" data-map="route" aria-label="World map illustrating a route from East Asia to Europe"></svg>
+        <div class="route-steps" aria-live="polite"><span>East Asia</span><span>Strait of Malacca</span><span>Indian Ocean</span><span>Sri Lanka</span><span>Bab-el-Mandeb</span><span>Suez Canal</span><span>Europe</span></div>
+        <div class="choke-copy"><p class="kicker">Maritime chokepoints</p><h2>A handful of narrow passages connect enormous parts of world trade.</h2><p>Hambantota is near a major corridor—not a chokepoint itself.</p></div>
+      </div>
+    </section>
+
+    <section class="lease story" id="lease" aria-label="The 99-year concession">
+      <div class="sticky lease-stage">
+        <p class="section-number">05 — The 99-year moment</p>
+        <ol class="timeline"><li><b>2007–08</b><span>China-backed financing and construction begin</span></li><li><b>2010</b><span>Hambantota opens</span></li><li class="ninety-nine"><b>2017</b><strong>99<br>years</strong><span>A long-term concession arrangement begins</span></li></ol>
+        <article class="nuance"><p class="kicker">Was it a debt trap?</p><div><p><b>The shorthand</b><br>Loan → debt → port surrendered</p><p><b>The record is more complicated</b><br>Sri Lanka pursued the project; the port faced commercial challenges; broader balance-of-payments pressure followed; then a separate long-term concession was agreed.</p></div><small>Commercial involvement and sovereign control are not the same thing.</small></article>
+      </div>
+    </section>
+
+    <section class="network story" id="network" aria-label="China-linked overseas port network">
+      <div class="sticky network-stage">
+        <p class="section-number">06 — Was Hambantota unusual?</p>
+        <svg class="world-map" data-map="china" aria-label="Map of port relationships recorded for China in the project dataset"></svg>
+        <div class="network-copy"><p class="question">But was Hambantota unusual?</p><h2>One port becomes<br>a network.</h2><p class="network-answer">No. In this dataset, China-linked overseas port records extend across multiple regions.</p></div>
+        <div class="map-key"><i class="key-dot"></i> Port record <i class="key-line"></i> Country-to-host connection</div>
+      </div>
+    </section>
+
+    <section class="language" aria-labelledby="language-title">
+      <p class="section-number">07 — Name the relationship</p>
+      <h2 id="language-title">A port connection is not one thing.</h2>
+      <p class="lede">The source dataset names a country, port and host country. It does not consistently classify each arrangement. So this article avoids calling all of them “ownership.”</p>
+      <div class="relationship-grid">
+        <article><b>Financed</b><span>Provided financing</span></article><article><b>Built</b><span>Built major infrastructure</span></article><article><b>Equity</b><span>Holds a stake</span></article><article><b>Operated</b><span>Runs a terminal or port</span></article><article><b>Concession / lease</b><span>Holds operating rights</span></article><article><b>Military access</b><span>Known logistical access</span></article>
+      </div>
+      <p class="small-note">Those categories are intentionally distinct. A detailed relationship card should only use a label supported by a source for that specific port.</p>
+    </section>
+
+    <section class="global story" id="global" aria-label="Global overseas port records">
+      <div class="sticky global-stage">
+        <p class="section-number">08 — China isn’t alone</p>
+        <svg class="world-map" data-map="global" aria-label="World map showing the overseas port records in the project dataset"></svg>
+        <div class="global-copy"><p class="question">But China isn’t alone.</p><h2>Overseas port involvement is a global strategy.</h2><p>The dataset also records activity connected to the UAE, Singapore, India, Japan, France, South Korea and others.</p></div>
+        <div class="owner-key" aria-label="Map color legend"></div>
+      </div>
+    </section>
+
+    <section class="overlap story" id="overlap" aria-label="Why these locations">
+      <div class="sticky overlap-stage">
+        <p class="section-number">09 — Why these ports?</p>
+        <svg class="world-map" data-map="overlap" aria-label="World map comparing port records and simplified shipping corridors"></svg>
+        <div class="overlap-copy"><p class="question">Foreign-linked ports<br>are not scattered at random.</p><h2>Many sit beside major maritime corridors and gateway regions.</h2><p>The pattern is geographic. The exact relationship at each port is not assumed from its location.</p></div>
+      </div>
+    </section>
+
+    <section class="layers story" id="layers" aria-label="What does a port give a country">
+      <div class="sticky layers-stage"><p class="section-number">10 — What does a port buy?</p><div class="port-core">PORT</div><div class="ring ring-1"><b>Access</b><span>Trade · cargo · markets</span></div><div class="ring ring-2"><b>Presence</b><span>Logistics · maintenance · transshipment</span></div><div class="ring ring-3"><b>Relationship</b><span>Investment · contracts · industrial links</span></div><div class="ring ring-4"><b>Influence</b><span>Partnerships · long-term infrastructure</span></div><div class="ring ring-5"><b>Strategic reach</b><span>Optionality exists on a spectrum</span></div><p class="layers-note">Commercial involvement does not automatically mean military control.</p></div>
+    </section>
+
+    <section class="final" aria-label="Conclusion"><p class="section-number">11 — From infrastructure to influence</p><svg class="world-map final-map" data-map="final" aria-hidden="true"></svg><div><p>Countries have not stopped competing for territory.</p><p>But influence can also be built through networks.</p><h2>Ports are where those networks touch land.</h2><p class="final-chain">Infrastructure <span>↓</span> Presence <span>↓</span> Influence</p><p class="end">The race for overseas ports isn’t simply about owning coastlines. It’s about securing a place in the networks that keep the world moving.</p></div></section>
+  </main>
+  <footer class="sources"><h2>Sources &amp; methodology</h2><p>“Overseas port involvement” is a dataset label, not a claim of sovereign ownership. The project’s CSV provides only an investing-country label, port name and host country; relationship types are not inferred for every record.</p><ul><li><a href="https://unctad.org/system/files/official-document/gdsinf2024d1_en.pdf">UNCTAD, Trade and Development Update (2024)</a> — seaborne trade statistic.</li><li><a href="https://www.cmport.com.hk/EN/news/Detail.aspx?id=10007328">China Merchants Port Holdings (2017)</a> — Hambantota investment terms.</li><li><a href="https://www.cabinetoffice.gov.lk/cab/index.php?Itemid=49&amp;dID=8435&amp;id=16&amp;lang=en&amp;option=com_content&amp;view=article">Government of Sri Lanka (2017)</a> — concession agreement.</li><li>Project dataset: <code>overseas_ports.csv</code>. Maps use country centroids for host-country-level records; they do not represent verified port coordinates.</li></ul></footer>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script><script src="script.js"></script>
+</body>
 </html>
