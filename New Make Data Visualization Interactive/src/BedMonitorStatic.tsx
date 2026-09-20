@@ -101,7 +101,7 @@ function TubeGradient({ sliderT }: { sliderT: number }) {
   );
 }
 
-const assetPathPrefix = "/assets";
+const assetPathPrefix = `${import.meta.env.BASE_URL}assets`;
 const imgGroup38 = `${assetPathPrefix}/2c809.svg`;
 const imgGroup39 = `${assetPathPrefix}/a1cff.svg`;
 const imgLine4 = `${assetPathPrefix}/6b830.svg`;
@@ -161,7 +161,7 @@ export default function BedMonitorStatic() {
         className="absolute h-[874px] left-0 overflow-clip rounded-[63px] top-0 w-[402px]"
         style={{
           backgroundImage:
-            "linear-gradient(180deg, rgb(27,61,100) 0%, rgb(25,58,96) 7.69%, rgb(24,55,92) 15.38%, rgb(22,53,88) 23.08%, rgb(20,50,84) 30.77%, rgb(18,47,80) 38.46%, rgb(17,44,76) 46.15%, rgb(15,42,72) 53.85%, rgb(13,39,69) 61.54%, rgb(12,36,65) 69.23%, rgb(10,34,61) 76.92%, rgb(9,31,57) 84.62%, rgb(7,29,54) 92.31%, rgb(6,26,50) 100%)",
+            "linear-gradient(180deg, rgb(27,61,100) 0%, rgb(25,58,96) 7.69%, rgb(24,55,92) 15.38%, rgb(22,53,88) 23.08%, rgb(20,50,84) 30.77%, rgb(18,47,80) 38.46%, rgb(17,44,76) 46.15%, rgb(15,42,72) 53.85%, rgb(13,39,68) 61.54%, rgb(11,36,64) 69.23%, rgb(9,33,60) 76.92%, rgb(7,30,56) 84.62%, rgb(5,27,52) 92.31%, rgb(3,24,48) 100%)",
         }}
       >
         {/* Tube gradient container — animated, speed driven by slider */}
@@ -259,8 +259,8 @@ export default function BedMonitorStatic() {
                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                     <feOffset dy="1" />
                     <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                    <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.18 0" />
-                    <feBlend mode="normal" in2="shape" result="effect2_innerShadow" />
+                    <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0" />
+                    <feBlend mode="normal" in="shape" result="effect2_innerShadow" />
                   </filter>
                 </defs>
               </svg>
@@ -314,7 +314,7 @@ export default function BedMonitorStatic() {
         >
           <div className="absolute inset-[6.26%_-0.01%_4.84%_0]">
             <svg className="absolute block inset-0 max-w-none size-full" preserveAspectRatio="none" overflow="visible" viewBox="0 0 308 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0 6.22222C0 2.78579 3.13401 0 7 0H301C304.866 0 308 2.78579 308 6.22222V49.7778C308 53.2142 304.866 56 301 56H7C3.134 56 0 53.2142 0 49.7778V6.22222Z" fill={gasColor} style={{ transition: "fill 0.5s ease" }} />
+              <path d="M0 6.22222C0 2.78579 3.13401 0 7 0H301C304.866 0 308 2.78579 308 6.22222V49.7778C308 53.2142 304.866 56 301 56H7C3.134 0 0 2.78579 0 49.7778V6.22222Z" fill={gasColor} style={{ transition: "fill 0.5s ease" }} />
             </svg>
           </div>
           <p
@@ -471,11 +471,11 @@ export default function BedMonitorStatic() {
 
         {/* Home indicator */}
         <div className="absolute h-[34px] left-0 top-[832px] w-[402px]">
-          <div className="absolute bg-[#b2b2b2] h-[5px] left-[134px] rounded-[100px] top-[21px] w-[134px]" />
+          <div className="absolute bg-[#b2b2b2] h-[5px] left-[134px] rounded-[100px] top-[21px] w-[134px] />
         </div>
 
         {/* Dynamic island */}
-        <div className="absolute bg-black h-[36px] left-[139px] rounded-[18px] top-[14px] w-[124px]" />
+        <div className="absolute bg-black h-[36px] left-[139px] rounded-[18px] top-[14px] w-[124px] />
 
         {/* Status bar */}
         <div className="absolute h-[13px] left-[57px] top-[26px] w-[307px]">
