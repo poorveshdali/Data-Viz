@@ -31,12 +31,19 @@ jobs:
         run: npm install
 
       - name: Build
-        # Repo name here must match your GitHub repo's name exactly.
-        run: FIGMA_PUBLIC_URL=/Data-Viz npm run build
+        env:
+          FIGMA_PUBLIC_URL: "/Data-Viz/New Make Data Visualization Interactive"
+        run: npm run build
+
+      - name: Stage site under project path
+        run: |
+          rm -rf "${RUNNER_TEMP}/pages"
+          mkdir -p "${RUNNER_TEMP}/pages/New Make Data Visualization Interactive"
+          cp -R dist/. "${RUNNER_TEMP}/pages/New Make Data Visualization Interactive/"
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: "New Make Data Visualization Interactive/dist"
+          path: "${{ runner.temp }}/pages"
 
   deploy:
     needs: build
