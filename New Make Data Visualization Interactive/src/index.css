@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@75..125,200..900&display=swap');
+@import 'tailwindcss';
+
+/* Tube gradient animation */
+@keyframes fogDrift {
+  from { transform: translateX(-50%) translateY(900px); }
+  to   { transform: translateX(-50%) translateY(-120%); }
+}
+@keyframes streamMove {
+  from { background-position-y: 170px; }
+  to   { background-position-y: 0px; }
+}
+@keyframes wispFall {
+  0%   { transform: translateY(900px); opacity: 0; }
+  8%   { opacity: 0.3; }
+  88%  { opacity: 0.3; }
+  100% { transform: translateY(-140px); opacity: 0; }
+}
+@keyframes wispSway {
+  0%, 100% { left: 0px; }
+  50% { left: 8px; }
+}
+
+/* Allow the hidden range input to receive pointer events for dragging */
+.slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: auto;
+}
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  cursor: grab;
+}
+.slider-input:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+.slider-input::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: grab;
+}
