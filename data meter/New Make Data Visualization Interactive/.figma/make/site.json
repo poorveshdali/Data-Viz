@@ -1,0 +1,10 @@
+{
+  "description": "Interactive data visualization tool allowing users to navigate and analyze bed-specific information efficiently using intuitive arrow controls.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
