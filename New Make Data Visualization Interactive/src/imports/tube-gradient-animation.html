@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tube Gradient Animation — Isolated</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rail-calm: #6FA8C9;
+    --rail-glow: rgba(111, 168, 201, 0.55);
+    --warn: #FF4D4D;
+    --ink: #EAF1F8;
+    --ink-dim: #9FB2C6;
+    --card: rgba(36, 52, 69, 0.42);
+    --card-border: rgba(148, 178, 204, 0.22);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: #060b14;
+    font-family: 'Inconsolata', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .stage {
+    min-height: 100vh; width: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 28px; padding: 40px 16px;
+  }
+  h1 {
+    font-size: 15px; font-weight: 700; letter-spacing: 0.4px; margin: 0;
+    color: var(--ink-dim); text-transform: uppercase; text-align: center;
+  }
+
+  /* ---------- Isolated tube — identical markup/CSS to the full monitor ---------- */
+  .tube-wrap {
+    position: relative;
+    width: 236px; height: 322px;
+    background: radial-gradient(120% 90% at 50% 0%, #16324f 0%, #0c2440 55%, #061a32 100%);
+    border-radius: 22px;
+    padding: 0;
+  }
+  .rail {
+    position: absolute; top: 0; bottom: 0; width: 6px; border-radius: 6px;
+    background: var(--rail-calm);
+    box-shadow: 0 0 14px 2px var(--rail-glow);
+    transition: background 900ms ease, box-shadow 900ms ease;
+  }
+  .rail-left { left: 8px; }
+  .rail-right { right: 8px; }
+  .tube-wrap.warning .rail {
+    background: var(--warn);
+    box-shadow: 0 0 18px 4px rgba(255,77,77,0.6);
+  }
+
+  .tube-inner {
+    position: absolute; top: 0; left: 26px; right: 26px; bottom: 0;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* Back layer: ambient fog */
+  .fog-layer {
+    position: absolute; inset: -30% -40%; overflow: visible;
+    filter: blur(18px);
+    transition: opacity 900ms ease, transform 900ms ease;
+  }
+  .fog-blob {
+    position: absolute; left: 50%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(120,190,220,0.9) 0%, rgba(90,150,190,0.35) 55%, rgba(90,150,190,0) 75%);
+    transform: translateX(-50%);
+    animation: fogDrift 16s ease-in-out infinite;
+  }
+  .tube-wrap.warning .fog-blob {
+    background: radial-gradient(circle, rgba(255,140,120,0.75) 0%, rgba(220,90,80,0.3) 55%, rgba(220,90,80,0) 75%);
+  }
+  .fog-blob.b1 { top: 8%;  width: 150px; height: 150px; animation-duration: 15s; }
+  .fog-blob.b2 { top: 42%; width: 190px; height: 190px; animation-duration: 19s; animation-delay: -6s; }
+  .fog-blob.b3 { top: 74%; width: 160px; height: 160px; animation-duration: 17s; animation-delay: -11s; }
+  @keyframes fogDrift {
+    0%   { transform: translate(-50%, 0) scale(1); }
+    50%  { transform: translate(calc(-50% + 10px), 14px) scale(1.08); }
+    100% { transform: translate(-50%, 0) scale(1); }
+  }
+
+  /* Continuously-moving layer: the same soft radial blob, tiled and drifting downward */
+  .flow-stream {
+    position: absolute; inset: -15% -25%;
+    background-image: radial-gradient(circle at 50% 50%,
+      rgba(120,190,220,0.23) 0%,
+      rgba(90,150,190,0.09) 55%,
+      rgba(90,150,190,0) 75%);
+    background-repeat: repeat-y;
+    background-size: 100% 170px;
+    filter: blur(20px);
+    opacity: 0.5;
+    animation-name: streamMove;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    transition: opacity 900ms ease;
+    pointer-events: none;
+  }
+  .tube-wrap.warning .flow-stream {
+    background-image: radial-gradient(circle at 50% 50%,
+      rgba(255,140,120,0.19) 0%,
+      rgba(220,90,80,0.08) 55%,
+      rgba(220,90,80,0) 75%);
+  }
+  @keyframes streamMove {
+    from { background-position-y: 0px; }
+    to   { background-position-y: 170px; }
+  }
+
+  /* Mid layer: wisping vapor trails */
+  .wisp-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+  .wisp-slot { position: absolute; top: 0; bottom: 0; width: 16px; margin-left: -8px; }
+  .wisp {
+    position: absolute;
+    left: 0; top: -60%; width: 100%; height: 44%;
+    border-radius: 50%;
+    background: linear-gradient(180deg,
+      rgba(210,235,245,0) 0%,
+      rgba(210,235,245,0.65) 30%,
+      rgba(210,235,245,0.65) 70%,
+      rgba(210,235,245,0) 100%);
+    filter: blur(7px);
+    opacity: 0;
+    animation-name: wispFall, wispSway;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+  }
+  .tube-wrap.warning .wisp {
+    background: linear-gradient(180deg,
+      rgba(255,205,195,0) 0%,
+      rgba(255,205,195,0.65) 30%,
+      rgba(255,205,195,0.65) 70%,
+      rgba(255,205,195,0) 100%);
+  }
+  @keyframes wispFall {
+    0%   { transform: translateY(-20%) scaleY(0.85) scaleX(var(--wisp-scale-x, 1)); opacity: 0; }
+    10%  { opacity: var(--wisp-op, 0.5); }
+    50%  { transform: translateY(60%) scaleY(1.05) scaleX(var(--wisp-scale-x, 1)); }
+    85%  { opacity: var(--wisp-op, 0.5); }
+    100% { transform: translateY(140%) scaleY(0.85) scaleX(var(--wisp-scale-x, 1)); opacity: 0; }
+  }
+  @keyframes wispSway {
+    0%, 100% { margin-left: 0px; }
+    50% { margin-left: 14px; }
+  }
+
+  .readout-card {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 101px; height: 99px; border-radius: 19px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 5;
+    transition: border-color 500ms ease, box-shadow 500ms ease;
+  }
+  .tube-wrap.warning .readout-card {
+    border-color: rgba(255,77,77,0.55);
+    box-shadow: 0 0 22px rgba(255,77,77,0.28);
+  }
+  .warn-icon {
+    position: absolute; top: 7px; right: 9px;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--warn); color: #1a0505; font-weight: 800; font-size: 9px;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 2px rgba(255,77,77,0.25);
+  }
+  .tube-wrap.warning .warn-icon { display: flex; }
+  .readout-value { font-size: 45px; font-weight: 800; line-height: 1; letter-spacing: -0.7px; }
+  .readout-unit { font-size: 11px; font-weight: 500; color: var(--ink-dim); margin-top: 1px; }
+
+  /* ---------- Test controls (not part of the extracted component) ---------- */
+  .controls {
+    width: 280px; display: flex; flex-direction: column; gap: 12px;
+    background: rgba(36,52,69,0.35); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 16px;
+  }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .row label { font-size: 12px; color: var(--ink-dim); }
+  input[type="range"] { flex: 1; accent-color: #3B9EFF; }
+  .tier-badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.08); color: var(--ink);
+  }
+  .toggle {
+    display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-dim); cursor: pointer;
+  }
+  .presets { display: flex; gap: 6px; }
+  .presets button {
+    flex: 1; font-family: inherit; font-size: 11px; font-weight: 700; padding: 7px 0;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 9px;
+    color: var(--ink); cursor: pointer;
+  }
+  .presets button:hover { background: rgba(255,255,255,0.12); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1>Living Breath — Tube Gradient Animation</h1>
+
+  <div class="tube-wrap" id="tubeWrap">
+    <div class="rail rail-left"></div>
+    <div class="rail rail-right"></div>
+    <div class="tube-inner">
+      <div class="fog-layer" id="fogLayer">
+        <div class="fog-blob b1"></div>
+        <div class="fog-blob b2"></div>
+        <div class="fog-blob b3"></div>
+      </div>
+      <div class="flow-stream"></div>
+      <div class="wisp-layer" id="wispLayer">
+        <div class="wisp-slot" style="left:20%"><div class="wisp" data-idx="0"></div></div>
+        <div class="wisp-slot" style="left:70%"><div class="wisp" data-idx="1"></div></div>
+        <div class="wisp-slot" style="left:38%"><div class="wisp" data-idx="2"></div></div>
+        <div class="wisp-slot" style="left:56%"><div class="wisp" data-idx="3"></div></div>
+      </div>
+    </div>
+    <div class="readout-card">
+      <div class="warn-icon" id="warnIcon">!</div>
+      <div class="readout-value" id="readoutValue">4</div>
+      <div class="readout-unit">L/min</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="row">
+      <label for="flowSlider">Flow rate</label>
+      <span class="tier-badge" id="tierBadge">LOW</span>
+    </div>
+    <input type="range" id="flowSlider" min="1" max="15" step="1" value="4" />
+    <div class="presets">
+      <button data-v="2">Low</button>
+      <button data-v="7">Mid</button>
+      <button data-v="13">High</button>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="warnToggle" />
+      Force warning (red) state
+    </label>
+  </div>
+</div>
+
+<script>
+(function () {
+  const FLOW_MIN = 1, FLOW_MAX = 15;
+
+  const tubeWrap = document.getElementById('tubeWrap');
+  const readoutValue = document.getElementById('readoutValue');
+  const fogLayer = document.getElementById('fogLayer');
+  const wispLayer = document.getElementById('wispLayer');
+  const wisps = Array.from(wispLayer.querySelectorAll('.wisp'));
+  const streams = Array.from(tubeWrap.querySelectorAll('.flow-stream'));
+  const flowSlider = document.getElementById('flowSlider');
+  const tierBadge = document.getElementById('tierBadge');
+  const warnToggle = document.getElementById('warnToggle');
+
+  function tierFor(v) {
+    if (v <= 4) return 'low';
+    if (v <= 10) return 'mid';
+    return 'high';
+  }
+
+  function updateVapor(flow) {
+    const t = (flow - FLOW_MIN) / (FLOW_MAX - FLOW_MIN); // 0..1
+    const tier = tierFor(flow);
+
+    const fogOpacity = 0.12 + t * 0.62;
+    const fogScale = 1 + t * 0.35;
+    fogLayer.style.opacity = fogOpacity.toFixed(2);
+    fogLayer.style.transform = 'scale(' + fogScale.toFixed(2) + ')';
+
+    const activeCount = tier === 'low' ? 1 : tier === 'mid' ? 3 : 4;
+    const duration = 7 - t * 4.5;
+    const swayDuration = 4 - t * 2;
+    const opacity = (0.22 + t * 0.45).toFixed(2);
+    wisps.forEach((w, i) => {
+      if (i < activeCount) {
+        w.style.setProperty('--wisp-op', opacity);
+        w.style.animationDuration = duration.toFixed(2) + 's, ' + swayDuration.toFixed(2) + 's';
+        w.style.animationDelay = (-i * (duration / activeCount)).toFixed(2) + 's, ' + (-i * 0.6) + 's';
+        w.style.setProperty('--wisp-scale-x', (0.8 + t * 0.9).toFixed(2));
+        w.style.display = '';
+      } else {
+        w.style.display = 'none';
+      }
+    });
+
+    const streamDuration = 5.5 - t * 3.3;
+    const streamOpacity = (0.35 + t * 0.65).toFixed(2);
+    streams.forEach((s) => {
+      s.style.animationDuration = streamDuration.toFixed(2) + 's';
+      s.style.opacity = streamOpacity;
+    });
+
+    tierBadge.textContent = tier.toUpperCase();
+  }
+
+  function render() {
+    const flow = Number(flowSlider.value);
+    readoutValue.textContent = flow;
+    tubeWrap.classList.toggle('warning', warnToggle.checked);
+    updateVapor(flow);
+  }
+
+  flowSlider.addEventListener('input', render);
+  warnToggle.addEventListener('change', render);
+  document.querySelectorAll('.presets button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      flowSlider.value = btn.dataset.v;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
